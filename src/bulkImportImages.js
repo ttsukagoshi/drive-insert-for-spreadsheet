@@ -15,13 +15,13 @@ function insertImage() {
   var scriptProperties = PropertiesService.getScriptProperties().getProperties();
   var ui = SpreadsheetApp.getUi();
   try {
-    var isSettingComplete = (
-      !scriptProperties.folderId ||
-      !scriptProperties.fileExt ||
-      !scriptProperties.selectionVertical ||
-      !scriptProperties.insertPosNext
+    let isSettingComplete = (
+      scriptProperties.folderId
+      && scriptProperties.fileExt
+      && scriptProperties.selectionVertical
+      && scriptProperties.insertPosNext
     );
-    if (isSettingComplete) {
+    if (!isSettingComplete) {
       throw new Error('Initial settings is not complete. Try running menu "Insert Image from Drive" > "Setup"')
     }
     let folderId = scriptProperties.folderId;
