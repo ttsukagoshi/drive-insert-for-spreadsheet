@@ -42,7 +42,7 @@ function insertImage() {
         message += localizedMessage.replaceAlertMessageAdd(k, result[k]);
       }
     }
-    ui.alert(message);
+    ui.alert(localizedMessage.messageList.alertMessageOnCompleteTitle, message, ui.ButtonSet.OK);
   } catch (error) {
     let errorMessage = errorMessage_(error);
     ui.alert(errorMessage);
