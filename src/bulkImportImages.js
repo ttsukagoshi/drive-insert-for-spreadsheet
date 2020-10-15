@@ -1,15 +1,19 @@
 function onOpen() {
-  var ui = SpreadsheetApp.getUi();
-  ui.createMenu('Insert Image from Drive')
-    .addItem('Insert Image', 'insertImage')
+  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  SpreadsheetApp.getUi()
+    .createMenu(localizedMessage.messageList.menuTitle)
+    .addItem(localizedMessage.messageList.menuInsertImage, 'insertImage')
     .addSeparator()
-    .addItem('Setup', 'setParameters')
-    .addItem('Check Settings', 'checkParameters')
+    .addItem(localizedMessage.messageList.menuSetup, 'setParameters')
+    .addItem(localizedMessage.messageList.menuCheckSettings, 'checkParameters')
+    .addSeparator()////////////////////////////////
+    .addItem('test', 'test')/////////////////////////
     .addToUi();
 }
 
 function insertImage() {
   var scriptProperties = PropertiesService.getScriptProperties().getProperties();
+  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
   var ui = SpreadsheetApp.getUi();
   try {
     let isSettingComplete = (
@@ -19,7 +23,7 @@ function insertImage() {
       && scriptProperties.insertPosNext
     );
     if (!isSettingComplete) {
-      throw new Error('Initial settings is not complete. Try running menu "Insert Image from Drive" > "Setup"')
+      throw new Error(localizedMessage.messageList.errorInitialSettingNotComplete);
     }
     let folderId = scriptProperties.folderId;
     let activeSheet = SpreadsheetApp.getActiveSheet();
@@ -30,14 +34,14 @@ function insertImage() {
       insertPosNext: toBoolean_(scriptProperties.insertPosNext)
     };
     let result = insertImageFromDrive(folderId, activeSheet, selectedRange, options);
-    let message = `Getting image from Drive folder: ${result.getBlobsCompleteSec} secs\nWhole process completed in ${result.insertImageCompleteSec} secs\n\n`;
+    let message = localizedMessage.replaceAlertMessageOnComplete(result.getBlobsCompleteSec, result.insertImageCompleteSec);
     for (let k in result) {
       if (k == 'getBlobsCompleteSec' || k == 'insertImageCompleteSec') {
         continue;
       } else if (result[k] <= 1) {
         continue;
       } else {
-        message += `${k}: ${result[k]} files with the same name\n`;
+        message += localizedMessage.replaceAlertMessageAdd(k, result[k]);
       }
     }
     ui.alert(message);
@@ -72,7 +76,7 @@ function toBoolean_(stringBoolean) {
  */
 function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}) {
   var start = new Date();
-  // Define the object to return.
+  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
   var result = {};
   try {
     // Check the selected range and get file names
@@ -82,17 +86,13 @@ function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}
     if ((options.selectionVertical && rangeNumColumns == 1) || (!options.selectionVertical && rangeNumRows == 1)) {
       fileNames = fileNames.concat(selectedRange.getValues().flat());
     } else if (options.selectionVertical && rangeNumColumns > 1) {
-      throw new Error('More than one column is selected. Check the selected range.');
+      throw new Error(localizedMessage.messageList.errorMoreThanOneColumnSelected);
     } else if (!options.selectionVertical && rangeNumRows > 1) {
-      throw new Error('More than one row is selected. Check the selected range.');
+      throw new Error(localizedMessage.messageList.errorMoreThanOneRowSelected);
     } else if (selectedRange.isBlank()) {
-      throw new Error('Empty cells. Check the selected range.')
+      throw new Error(localizedMessage.messageList.errorEmptyCellsSelected)
     } else {
-      let errorMessage = `Unknown Error:
-      Selected Range: ${selectedRange.getA1Notation()}
-      options.selectionVertical = ${options.selectionVertical}
-      rangeNumRows = ${rangeNumRows}
-      rangeNumColumns = ${rangeNumColumns}`;
+      let errorMessage = localizedMessage.replaceErrorUnknownError(selectedRange.getA1Notation(), options.selectionVertical, rangeNumRows, rangeNumColumns);
       throw new Error(errorMessage);
     }
     // Get images as blobs
@@ -122,7 +122,7 @@ function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}
     let insertRange = selectedRange.offset(offsetPosRow, offsetPosCol);
     // Verify the contents of the insertRange, i.e., make sure the cells in the range are empty
     if (!insertRange.isBlank()) {
-      throw new Error('Existing Content in Insert Cell Range: Check the selected range.');
+      throw new Error(localizedMessage.messageList.errorExistingContentInInsertCellRange);
     }
     // Insert the image blobs
     let startCell = { 'row': insertRange.getRow(), 'column': insertRange.getColumn() };
@@ -175,11 +175,12 @@ function cellPixSizes_(activeSheet, activeRange) {
  */
 function setParameters() {
   var ui = SpreadsheetApp.getUi();
+  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
   var scriptProperties = PropertiesService.getScriptProperties().getProperties();
   if (!scriptProperties.setupComplete || scriptProperties.setupComplete == 'false') {
     setup_(ui);
   } else {
-    let alreadySetupMessage = 'Initial settings are already complete. Do you want to overwrite the settings?\n\n';
+    let alreadySetupMessage = localizedMessage.messageList.alertAlreadySetupMessage;
     for (let k in scriptProperties) {
       alreadySetupMessage += `${k}: ${scriptProperties[k]}\n`;
     }
@@ -196,40 +197,41 @@ function setParameters() {
  * @param {Object} currentSettings [Optional] Current script properties
  */
 function setup_(ui, currentSettings = {}) {
+  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
   try {
     // folderId
-    let promptFolderId = 'Google Drive folder ID to get the images from.';
-    promptFolderId += (currentSettings.folderId ? `\n\nCurrent Value: ${currentSettings.folderId}` : '');
+    let promptFolderId = localizedMessage.messageList.promptFolderId;
+    promptFolderId += (currentSettings.folderId ? localizedMessage.replacePromptCurrentValue(currentSettings.folderId) : '');
     let responseFolderId = ui.prompt(promptFolderId, ui.ButtonSet.OK_CANCEL);
     if (responseFolderId.getSelectedButton() !== ui.Button.OK) {
-      throw new Error('Canceled.');
+      throw new Error(localizedMessage.messageList.errorCanceled);
     }
     let folderId = responseFolderId.getResponseText();
 
     // fileExt
-    let promptFileExt = 'File extension of the image file(s) without the period. e.g., NOT ".jpg" but "jpg"';
-    promptFileExt += (currentSettings.fileExt ? `\n\nCurrent Value: ${currentSettings.fileExt}` : '');
+    let promptFileExt = localizedMessage.messageList.promptFileExt;
+    promptFileExt += (currentSettings.fileExt ? localizedMessage.replacePromptCurrentValue(currentSettings.fileExt) : '');
     let responseFileExt = ui.prompt(promptFileExt, ui.ButtonSet.OK_CANCEL);
     if (responseFileExt.getSelectedButton() !== ui.Button.OK) {
-      throw new Error('Canceled.');
+      throw new Error(localizedMessage.messageList.errorCanceled);
     }
     let fileExt = responseFileExt.getResponseText();
 
     // selectionVertical
-    let promptSelectionVertical = 'selectionVertical: Enter "true" or "false". When true, the script will assume that the cells are selected vertically, i.e., in a single column.';
-    promptSelectionVertical += (currentSettings.selectionVertical ? `\n\nCurrent Value: ${currentSettings.selectionVertical}` : '');
+    let promptSelectionVertical = localizedMessage.messageList.promptSelectionVertical;
+    promptSelectionVertical += (currentSettings.selectionVertical ? localizedMessage.replacePromptCurrentValue(currentSettings.selectionVertical) : '');
     let responseSelectionVertical = ui.prompt(promptSelectionVertical, ui.ButtonSet.OK_CANCEL);
     if (responseSelectionVertical.getSelectedButton() !== ui.Button.OK) {
-      throw new Error('Canceled.');
+      throw new Error(localizedMessage.messageList.errorCanceled);
     }
     let selectionVertical = responseSelectionVertical.getResponseText();
 
     // insertPosNext
-    let promptInsertPosNext = 'insertPosNext: Enter "true" or "false". When true, the images will be inserted in the next row or column, depending on the value of selectionVertical.';
-    promptInsertPosNext += (currentSettings.insertPosNext ? `\n\nCurrent Value: ${currentSettings.insertPosNext}` : '');
+    let promptInsertPosNext = localizedMessage.messageList.promptInsertPosNext;
+    promptInsertPosNext += (currentSettings.insertPosNext ? localizedMessage.replacePromptCurrentValue(currentSettings.insertPosNext) : '');
     let responseInsertPosNext = ui.prompt(promptInsertPosNext, ui.ButtonSet.OK_CANCEL);
     if (responseInsertPosNext.getSelectedButton() !== ui.Button.OK) {
-      throw new Error('Canceled.');
+      throw new Error(localizedMessage.messageList.errorCanceled);
     }
     let insertPosNext = responseInsertPosNext.getResponseText();
 
@@ -242,7 +244,7 @@ function setup_(ui, currentSettings = {}) {
       'setupComplete': true
     };
     PropertiesService.getScriptProperties().setProperties(properties, false);
-    ui.alert('Complete: setup of script properties');
+    ui.alert(localizedMessage.messageList.alertSetupComplete);
   } catch (error) {
     let message = errorMessage_(error);
     ui.alert(message);
@@ -254,12 +256,13 @@ function setup_(ui, currentSettings = {}) {
  */
 function checkParameters() {
   var ui = SpreadsheetApp.getUi();
+  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
   var scriptProperties = PropertiesService.getScriptProperties().getProperties();
   var currentSettings = '';
   for (let k in scriptProperties) {
     currentSettings += `${k}: ${scriptProperties[k]}\n`;
   }
-  ui.alert('Current Settings', currentSettings, ui.ButtonSet.OK);
+  ui.alert(localizedMessage.messageList.alertCurrentSettingsTitle, currentSettings, ui.ButtonSet.OK);
 }
 
 /**
