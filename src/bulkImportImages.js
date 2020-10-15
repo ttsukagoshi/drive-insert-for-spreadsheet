@@ -126,7 +126,6 @@ function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}
     let startCell = { 'row': insertRange.getRow(), 'column': insertRange.getColumn() };
     let cellPxSizes = cellPixSizes_(activeSheet, insertRange).flat();
     imageBlobs.forEach(function (blob, index) {
-      blob = blob.getBlob();
       let img = (
         options.selectionVertical
           ? activeSheet.insertImage(blob, startCell.column, startCell.row + index)
