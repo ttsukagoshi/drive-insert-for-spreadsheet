@@ -1,8 +1,5 @@
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
-  ui.createMenu('Test')//////////////////////////////////////
-    .addItem('test', 'test')
-    .addToUi();
   ui.createMenu('Insert Image from Drive')
     .addItem('Insert Image', 'insertImage')
     .addSeparator()
@@ -25,13 +22,25 @@ function insertImage() {
       throw new Error('Initial settings is not complete. Try running menu "Insert Image from Drive" > "Setup"')
     }
     let folderId = scriptProperties.folderId;
+    let activeSheet = SpreadsheetApp.getActiveSheet();
     let selectedRange = SpreadsheetApp.getActiveRange();
     let options = {
       fileExt: scriptProperties.fileExt,
       selectionVertical: toBoolean_(scriptProperties.selectionVertical),
       insertPosNext: toBoolean_(scriptProperties.insertPosNext)
     };
-    insertImageFromDrive(folderId, selectedRange, options);
+    let result = insertImageFromDrive(folderId, activeSheet, selectedRange, options);
+    let message = `Getting image from Drive folder: ${result.getBlobsCompleteSec} secs\nWhole process completed in ${result.insertImageCompleteSec} secs\n\n`;
+    for (let k in result) {
+      if (k == 'getBlobsCompleteSec' || k == 'insertImageCompleteSec') {
+        continue;
+      } else if (result[k] <= 1) {
+        continue;
+      } else {
+        message += `${k}: ${result[k]} files with the same name\n`;
+      }
+    }
+    ui.alert(message);
   } catch (error) {
     let errorMessage = errorMessage_(error);
     ui.alert(errorMessage);
@@ -39,7 +48,7 @@ function insertImage() {
 }
 
 /**
- * Convert string booleans into boolean data
+ * Convert string booleans into boolean
  * @param {string} stringBoolean 
  * @return {boolean}
  */
@@ -49,8 +58,9 @@ function toBoolean_(stringBoolean) {
 
 /**
  * Insert image blobs obtained from a designated Google Drive folder.
- * @param {string} folderId ID of Google Drive folder
- * @param {Object} selectedRange Range class object of Google Spreadsheet.
+ * @param {string} folderId ID of Google Drive folder where the images are stored. If this value is "root", the root Drive folder is selected.
+ * @param {Object} activeSheet Sheet class object of the Google Spreadsheet to insert the image.
+ * @param {Object} selectedRange Range class object of Google Spreadsheet that contains the image file names.
  * @param {Object} options Advanced parameters.
  * @param {string} options.fileExt File extension to search for in the Google Drive folder. Defaults to 'jpg'.
  * Note that the period before the extension is NOT required.
@@ -60,11 +70,8 @@ function toBoolean_(stringBoolean) {
  * of the selected cells.
  * @returns {Object} Object with file name as the key and the number of files in the Drive folder with the same name as its value.
  */
-function insertImageFromDrive(folderId, selectedRange, options = {}) {
-  // Set default values of options
-  options.fileExt = options.fileExt || 'jpg';
-  options.selectionVertical = options.selectionVertical || true;
-  options.insertPosNext = options.insertPosNext || true;
+function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}) {
+  var start = new Date();
   // Define the object to return.
   var result = {};
   try {
@@ -72,14 +79,12 @@ function insertImageFromDrive(folderId, selectedRange, options = {}) {
     let rangeNumRows = selectedRange.getNumRows();
     let rangeNumColumns = selectedRange.getNumColumns();
     let fileNames = [];
-    if (options.selectionVertical && rangeNumColumns > 1) {
+    if ((options.selectionVertical && rangeNumColumns == 1) || (!options.selectionVertical && rangeNumRows == 1)) {
+      fileNames = fileNames.concat(selectedRange.getValues().flat());
+    } else if (options.selectionVertical && rangeNumColumns > 1) {
       throw new Error('More than one column is selected. Check the selected range.');
-    } else if (options.selectionVertical && rangeNumColumns == 1) {
-      selectedRange.getValues().forEach(value => fileNames.push(value[0]));
     } else if (!options.selectionVertical && rangeNumRows > 1) {
       throw new Error('More than one row is selected. Check the selected range.');
-    } else if (!options.selectionVertical && rangeNumRows == 1) {
-      fileNames = fileNames.concat(selectedRange.getValues()[0]);
     } else if (selectedRange.isBlank()) {
       throw new Error('Empty cells. Check the selected range.')
     } else {
@@ -90,9 +95,8 @@ function insertImageFromDrive(folderId, selectedRange, options = {}) {
       rangeNumColumns = ${rangeNumColumns}`;
       throw new Error(errorMessage);
     }
-    console.log(fileNames);//////////////////////////////////
-    // Get images
-    let targetFolder = DriveApp.getFolderById(folderId);
+    // Get images as blobs
+    let targetFolder = (folderId == 'root' ? DriveApp.getRootFolder() : DriveApp.getFolderById(folderId));
     let imageBlobs = fileNames.map((value) => {
       let fileNameExt = `${value}.${options.fileExt}`;
       let targetFile = targetFolder.getFilesByName(fileNameExt);
@@ -102,12 +106,14 @@ function insertImageFromDrive(folderId, selectedRange, options = {}) {
         let file = targetFile.next();
         fileCounter += 1;
         if (fileCounter <= 1) {
-          fileBlob = file.getBlob();
+          fileBlob = file.getBlob().setName(value);
         }
       }
       result[value] = fileCounter;
       return fileBlob;
     });
+    let getBlobsComplete = new Date();
+    result['getBlobsCompleteSec'] = (getBlobsComplete.getTime() - start.getTime()) / 1000;
     // Set the offset row and column to insert image blobs
     let offsetPos = (options.insertPosNext ? 1 : -1);
     let offsetPosRow = (options.selectionVertical ? 0 : offsetPos);
@@ -119,11 +125,49 @@ function insertImageFromDrive(folderId, selectedRange, options = {}) {
       throw new Error('Existing Content in Insert Cell Range: Check the selected range.');
     }
     // Insert the image blobs
-    console.log(imageBlobs);/////////////////////////////////////////
+    let startCell = { 'row': insertRange.getRow(), 'column': insertRange.getColumn() };
+    let cellPxSizes = cellPixSizes_(activeSheet, insertRange).flat();
+    imageBlobs.forEach(function (blob, index) {
+      let img = (
+        options.selectionVertical
+          ? activeSheet.insertImage(blob, startCell.column, startCell.row + index)
+          : activeSheet.insertImage(blob, startCell.column + index, startCell.row)
+      );
+      let [imgHeight, imgWidth] = [img.getHeight(), img.getWidth()];
+      let { height, width } = cellPxSizes[index];
+      let fraction = Math.min(height / imgHeight, width / imgWidth);
+      let [imgHeightResized, imgWidthResized] = [imgHeight * fraction, imgWidth * fraction];
+      let offsetX = Math.trunc((width - imgWidthResized) / 2);
+      img.setHeight(imgHeightResized).setWidth(imgWidthResized).setAnchorCellXOffset(offsetX);
+    });
+    let insertImageComplete = new Date();
+    result['insertImageCompleteSec'] = (insertImageComplete.getTime() - start.getTime()) / 1000;
     return result;
   } catch (error) {
     throw error;
   }
+}
+
+/**
+ * Gets the cells' height and width in pixels for the selected range in Google Spreadsheet in form of a 2-d JavaScript array;
+ * the array values are ordered in the same way as executing Range.getValues()
+ * @param {Object} activeSheet The active Sheet class object in Google Spreadsheet, e.g., SpreadsheetApp.getActiveSheet()
+ * @param {Object} activeRange The selected Range class object in Google Spreadsheet, e.g., SpreadsheetApp.getActiveRange()
+ * @returns {array} 2-d array of objects with 'height' and 'width' as keys and pixels as values.
+ * Each object represents a cell and is aligned in the same order as Range.getValues()
+ */
+function cellPixSizes_(activeSheet, activeRange) {
+  var rangeStartCell = { 'row': activeRange.getRow(), 'column': activeRange.getColumn() };
+  var cellValues = activeRange.getValues();
+  var cellPixSizes = cellValues.map(function (row, rowIndex) {
+    let rowPix = activeSheet.getRowHeight(rangeStartCell.row + rowIndex);
+    let rowPixSizes = row.map(function (cell, colIndex) {
+      let cellSize = { 'height': rowPix, 'width': activeSheet.getColumnWidth(rangeStartCell.column + colIndex) };
+      return cellSize;
+    });
+    return rowPixSizes;
+  });
+  return cellPixSizes;
 }
 
 /**
