@@ -11,3 +11,6 @@ For more information on how to change the locale, see [Set a spreadsheet’s loc
 - This Google Apps Script utilizes [`Sheet.insertImage()`](https://developers.google.com/apps-script/reference/spreadsheet/sheet#insertimageblobsource,-column,-row). Although not officially described, there seems to be some limitations to the image files that can be inserted using this method ([@tanaikech](https://github.com/tanaikech) reports [this in detail](https://gist.github.com/tanaikech/9414d22de2ff30216269ca7be4bce462)):
   - Pixel size: The pixel area, or the product of horizontal and vertical pixel length, of the image must be less than or equal to 2<sup>20</sup> = 1,048,576 pixel<sup>2</sup>
   - File type:`image/jpeg`, `image/png`, and `image/gif`, i.e., file extensions `jpg`, `png`, and `gif`, are accepted
+
+## Attribution
+The icon of this Google Sheets add-on is made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)

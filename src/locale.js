@@ -43,10 +43,10 @@ const MESSAGES = {
     'promptFileExt': 'File extension of the image file(s) without the period. e.g., NOT ".jpg" but "jpg"',
     'promptSelectionVertical': 'selectionVertical: Enter "true" or "false". When true, the script will assume that the cells are selected vertically, i.e., in a single column.',
     'promptInsertPosNext': 'insertPosNext: Enter "true" or "false". When true, the images will be inserted in the next row or column, depending on the value of selectionVertical.',
-    'alertSetupComplete': 'Complete: setup of script properties',
+    'alertSetupComplete': 'Setup of this add-on properties complete.',
     'alertCurrentSettingsTitle': 'Current Settings'
   },
-  'ja_JP': {
+  'ja': {
     'menuTitle': 'Googleドライブから画像挿入',
     'menuInsertImage': '画像挿入',
     'menuSetup': '初期設定',

@@ -13,3 +13,6 @@ Googleスプレッドシートに[内蔵されている`IMAGE(<url>)`関数](htt
 - このGoogle Apps Scriptは[`Sheet.insertImage()`](https://developers.google.com/apps-script/reference/spreadsheet/sheet#insertimageblobsource,-column,-row)を使用しています。公式資料では記載されていませんが、このメソッドを使ってスプレッドシート内に挿入できる画像には、一定の制約があるようです（[@tanaikech](https://github.com/tanaikech)さんが[詳細にまとめてくれています](https://gist.github.com/tanaikech/9414d22de2ff30216269ca7be4bce462)）：
   - ピクセルサイズ：縦横のピクセル数の積＝ピクセル面積が2<sup>20</sup> = 1,048,576ピクセル<sup>2</sup>以下
   - ファイルタイプ：`image/jpeg`、`image/png`、`image/gif`（つまり拡張子が`jpg`、`png`、`gif`の画像ファイル）のみ対応
+
+## アイコンについて
+The icon of this Google Sheets add-on is made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
