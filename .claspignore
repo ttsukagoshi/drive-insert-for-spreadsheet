@@ -1,0 +1,9 @@
+# git
+.git/*
+.gitignore
+
+# misc
+.clasp.json
+LICENSE
+README.md
+README.ja.md
