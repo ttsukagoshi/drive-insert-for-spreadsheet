@@ -21,7 +21,8 @@ Googleスプレッドシートに[内蔵されている`IMAGE(<url>)`関数](htt
 以下の例では、Googleドライブのあるフォルダ内にある`Cat.jpg`・`Dog.jpg`・`Fish.jpg`という3つの画像ファイルを、作業中のGoogleスプレッドシートに自動挿入します。  
 ![Empty Cells](/src/images/readme/01_empty-cells.png)
 
-1. 初期設定：アドオンのインストール後、初期設定を行います。画像を参照するGoogleドライブのフォルダが変わる場合も、同様に設定変更が必要となります。設定項目は次のとおりです：  
+### 1. 初期設定
+アドオンのインストール後、初期設定を行います。画像を参照するGoogleドライブのフォルダが変わる場合も、同様に設定変更が必要となります。設定項目は次のとおりです：  
   - `folderId`: 画像が保存されているGoogleドライブのフォルダID（フォルダのURL`https://drive.google.com/drive/folders/*****`にある`*****`部分）。`マイドライブ`直下の画像ファイルを参照したい場合は`root`と入力する。
   - `fileExt`: 画像ファイルの拡張子（初期設定ではjpg）。拡張子前のピリオド（.）は不要であることに注意。
   - `selectionVertical`: スプレッドシートでのセル選択の方向。縦であればtrue、横であればfalse。
@@ -29,7 +30,8 @@ Googleスプレッドシートに[内蔵されている`IMAGE(<url>)`関数](htt
 初期設定はアドオンのメニュー`Insert Image from Drive（画像挿入）` > `初期設定`から行ってください。  
 ![Initial setup](/src/images/readme/02_setup.png)
 
-2. 画像挿入：スプレッドシート上で、画像ファイル名の示すセルを選択し、アドオンメニューから`Insert Image from Drive` > `画像挿入`を選択すると、設定に従って隣接するセルの大きさに合わせて画像が挿入される。  
+### 2. 画像挿入
+スプレッドシート上で、画像ファイル名の示すセルを選択し、アドオンメニューから`Insert Image from Drive` > `画像挿入`を選択すると、設定に従って隣接するセルの大きさに合わせて画像が挿入される。  
 ![Insert images](/src/images/readme/03_insert-image.png)
 
 ### 設定項目`selectionVertical`と`insertPosNext`と画像の挿入位置の関係

@@ -20,7 +20,8 @@ Let's assume that you have a Google Drive folder containing three image files, `
 You want to insert these images into a Google Sheets file that you are currently working on:  
 ![Empty Cells](/src/images/readme/01_empty-cells.png)
 
-1. Initial settings: After installing the add-on, you will have to setup necessary parameters before going on to the actual image inserting. This setup needs to be done whenever there is a change in the source of the image, i.e., the Google Drive folder, or if you are working on a new file. The required parameters are  
+### 1. Initial Settings
+After installing the add-on, you will have to setup necessary parameters before going on to the actual image inserting. This setup needs to be done whenever there is a change in the source of the image, i.e., the Google Drive folder, or if you are working on a new file. The required parameters are  
   - `folderId`: Google Driver folder ID that the images are save in. It's the `*****` part of the folder URL `https://drive.google.com/drive/folders/*****`. To designate the root folder under `My Drive`, enter `root`.
   - `fileExt`: File extension of the image files. This defaults to `jpg`. Note that the period before the file extension is NOT required.
   - `selectionVertical`: Designate the direction of selecting the cells in the spreadsheet. Enter `true` if your selection is vertical, `false` if horizontal.
@@ -28,7 +29,8 @@ You want to insert these images into a Google Sheets file that you are currently
 The setup can be done from the add-on menu `Insert Image from Drive` > `Setup`  
 ![Initial setup](/src/images/readme/02_setup.png)
 
-2. Inserting the images: Select the cells that represent the image file name, and from the menu, select `Insert Image from Drive` > `Insert Image` to insert the cooresponding images to the cells next to the selected cells.  
+### 2. Inserting the Images
+Select the cells that represent the image file name, and from the menu, select `Insert Image from Drive` > `Insert Image` to insert the cooresponding images to the cells next to the selected cells.  
 ![Insert images](/src/images/readme/03_insert-image.png)
 
 ### About Parameters `selectionVertical` and `insertPosNext` and Insert Positions of the Images
