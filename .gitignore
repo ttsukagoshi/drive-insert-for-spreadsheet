@@ -1,3 +1,6 @@
 # clasp settings
 .clasp.json
 src/test.js
+
+# misc
+Thumbs.db
