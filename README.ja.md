@@ -16,10 +16,10 @@ Googleスプレッドシートに[内蔵されている`IMAGE(<url>)`関数](htt
 - このGoogle Apps Scriptは[`Sheet.insertImage()`](https://developers.google.com/apps-script/reference/spreadsheet/sheet#insertimageblobsource,-column,-row)を使用しています。公式資料では記載されていませんが、このメソッドを使ってスプレッドシート内に挿入できる画像には、一定の制約があるようです（[@tanaikech](https://github.com/tanaikech)さんが[詳細にまとめてくれています](https://gist.github.com/tanaikech/9414d22de2ff30216269ca7be4bce462)）：
   - ピクセルサイズ：縦横のピクセル数の積＝ピクセル面積が2<sup>20</sup> = 1,048,576ピクセル<sup>2</sup>以下
   - ファイルタイプ：`image/jpeg`、`image/png`、`image/gif`（つまり拡張子が`jpg`、`png`、`gif`の画像ファイル）のみ対応
-  - 
+
 ## 使用方法（アドオン版）
 以下の例では、Googleドライブのあるフォルダ内にある`Cat.jpg`・`Dog.jpg`・`Fish.jpg`という3つの画像ファイルを、作業中のGoogleスプレッドシートに自動挿入します。  
-![Empty Cells](/src/images/readme/01_empty_cells.png)
+![Empty Cells](/src/images/readme/01_empty-cells.png)
 
 1. 初期設定：アドオンのインストール後、初期設定を行います。画像を参照するGoogleドライブのフォルダが変わる場合も、同様に設定変更が必要となります。設定項目は次のとおりです：  
   - `folderId`: 画像が保存されているGoogleドライブのフォルダID（フォルダのURL`https://drive.google.com/drive/folders/*****`にある`*****`部分）。`マイドライブ`直下の画像ファイルを参照したい場合は`root`と入力する。
@@ -32,22 +32,22 @@ Googleスプレッドシートに[内蔵されている`IMAGE(<url>)`関数](htt
 2. 画像挿入：スプレッドシート上で、画像ファイル名の示すセルを選択し、アドオンメニューから`Insert Image from Drive` > `画像挿入`を選択すると、設定に従って隣接するセルの大きさに合わせて画像が挿入される。  
 ![Insert images](/src/images/readme/03_insert-image.png)
 
-### 画像の挿入位置と`selectionVertical`と`insertPosNext`の設定
-|`selectionVertical`|`insertPosNext`| 画像の挿入位置 |
+### 設定項目`selectionVertical`と`insertPosNext`と画像の挿入位置の関係
+| selectionVertical | insertPosNext | 画像の挿入位置 |
 | --- | --- | --- |
-| `true` | `true` | ![挿入された画像 selectionVertical = true, insertPosNext = true](/src/images/readme/04_images-inserted-tt.png) |
-| `true` | `false` | ![挿入された画像 selectionVertical = true, insertPosNext = false](/src/images/readme/05_images-inserted-tf.png) |
-| `false` | `true` | ![挿入された画像 selectionVertical = false, insertPosNext = true](/src/images/readme/06_images-inserted-ft.png) |
-| `false` | `false` | ![挿入された画像 selectionVertical = false, insertPosNext = false](/src/images/readme/07_images-inserted-ff.png) |
+| `true` | `true` | 画像ファイル名はシート上で**縦（垂直列）**に配置されていて、<br>画像はファイル名の**右列**に挿入される。<br>![Inserted images: selectionVertical = true, insertPosNext = true](/src/images/readme/04_images-inserted-tt.png) |
+| `true` | `false` | 画像ファイル名はシート上で**縦（垂直列）**に配置されていて、<br>画像はファイル名の**左列**に挿入される。<br>![Inserted images: selectionVertical = true, insertPosNext = false](/src/images/readme/05_images-inserted-tf.png) |
+| `false` | `true` | 画像ファイル名はシート上で**横（水平行）**に配置されていて、<br>画像はファイル名の行の**下**に挿入される。<br>![Inserted images: selectionVertical = false, insertPosNext = true](/src/images/readme/06_images-inserted-ft.png) |
+| `false` | `false` | 画像ファイル名はシート上で**横（水平行）**に配置されていて、<br>画像はファイル名の行の**上**に挿入される。<br>![Inserted images: selectionVertical = false, insertPosNext = false](/src/images/readme/07_images-inserted-ff.png) |
 
 ## ユーザのプライバシー
 このアプリ/スクリプトは、スプレッドシート上にユーザにより指定された画像を挿入する目的以外で、一切の個人情報を記録・保管しません。GoogleドライブのフォルダIDなど、`初期設定`でユーザにより設定される項目は各ファイルの[document properties（アドオン版）またはscript properties（スクリプト版）](https://developers.google.com/apps-script/guides/properties#comparison_of_property_stores)に保存され、各ファイルで`編集`以上の権限を持つユーザ間で共有されます。スクリプト実行時にログ等は残らず、ユーザ個人に係る一切のデータは開発者から見ることができません。
 
 ### 各認証スコープの意味と本アプリ/スクリプトでの使途
-| スコープ | 意味 | 本アプリ/スクリプトでの使途 |
-| --- | --- | --- |
-| https://www.googleapis.com/auth/spreadsheets | Googleスプレッドシートのファイルに対する読み取り及び編集を許可<br>詳細は https://developers.google.com/sheets/api/guides/authorizing 参照 | <ul><li>セル内のテキストを読み取り、ファイル名として指定されたGoogleドライブ内の検索に使用。</li><li>シート内に画像を挿入。</li></ul> |
-| https://www.googleapis.com/auth/drive.readonly | Googleドライブ内のファイル及びそのメタデータに読み取りのみ許可（編集不可）<br>詳細は https://developers.google.com/drive/api/v2/about-auth 参照 | ファイル名を検索キーにGoogleドライブ内を検索し、該当ファイルを[blob](https://developers.google.com/apps-script/reference/base/blob)として取得し、スプレッドシートへの挿入に使用。 |
+| スコープ/意味 | 本アプリ/スクリプトでの使途 |
+| --- | --- |
+| `https://www.googleapis.com/auth/spreadsheets`<br>Googleスプレッドシートのファイルに対する読み取り及び編集を許可<br>詳細は https://developers.google.com/sheets/api/guides/authorizing 参照 | <ul><li>セル内のテキストを読み取り、ファイル名として指定されたGoogleドライブ内の検索に使用。</li><li>シート内に画像を挿入。</li></ul> |
+| `https://www.googleapis.com/auth/drive.readonly`<br>Googleドライブ内のファイル及びそのメタデータに読み取りのみ許可（編集不可）<br>詳細は https://developers.google.com/drive/api/v2/about-auth 参照 | ファイル名を検索キーにGoogleドライブ内を検索し、該当ファイルを[blob](https://developers.google.com/apps-script/reference/base/blob)として取得し、スプレッドシートへの挿入に使用。 |
 
 ## 権利の帰属
 - The icon of this Google Sheets add-on is made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)

@@ -14,11 +14,11 @@ For more information on how to change the locale, see [Set a spreadsheet’s loc
 - This Google Apps Script utilizes [`Sheet.insertImage()`](https://developers.google.com/apps-script/reference/spreadsheet/sheet#insertimageblobsource,-column,-row). Although not officially described, there seems to be some limitations to the image files that can be inserted using this method ([@tanaikech](https://github.com/tanaikech) reports [this in detail](https://gist.github.com/tanaikech/9414d22de2ff30216269ca7be4bce462)):
   - Pixel size: The pixel area, or the product of horizontal and vertical pixel length, of the image must be less than or equal to 2<sup>20</sup> = 1,048,576 pixel<sup>2</sup>
   - File type:`image/jpeg`, `image/png`, and `image/gif`, i.e., file extensions `jpg`, `png`, and `gif`, are accepted
-  - 
+
 ## How to Use (Add-on ver.)
 Let's assume that you have a Google Drive folder containing three image files, `Cat.jpg`, `Dog.jpg`, and `Fish.jpg`.  
 You want to insert these images into a Google Sheets file that you are currently working on:  
-![Empty Cells](/src/images/readme/01_empty_cells.png)
+![Empty Cells](/src/images/readme/01_empty-cells.png)
 
 1. Initial settings: After installing the add-on, you will have to setup necessary parameters before going on to the actual image inserting. This setup needs to be done whenever there is a change in the source of the image, i.e., the Google Drive folder, or if you are working on a new file. The required parameters are  
   - `folderId`: Google Driver folder ID that the images are save in. It's the `*****` part of the folder URL `https://drive.google.com/drive/folders/*****`. To designate the root folder under `My Drive`, enter `root`.
@@ -31,22 +31,22 @@ The setup can be done from the add-on menu `Insert Image from Drive` > `Setup`
 2. Inserting the images: Select the cells that represent the image file name, and from the menu, select `Insert Image from Drive` > `Insert Image` to insert the cooresponding images to the cells next to the selected cells.  
 ![Insert images](/src/images/readme/03_insert-image.png)
 
-### About `selectionVertical` and `insertPosNext`
-|`selectionVertical`|`insertPosNext`| Insert Positions |
+### About Parameters `selectionVertical` and `insertPosNext` and Insert Positions of the Images
+| selectionVertical | insertPosNext | Insert Positions |
 | --- | --- | --- |
-| `true` | `true` | ![Inserted images: selectionVertical = true, insertPosNext = true](/src/images/readme/04_images-inserted-tt.png) |
-| `true` | `false` | ![Inserted images: selectionVertical = true, insertPosNext = false](/src/images/readme/05_images-inserted-tf.png) |
-| `false` | `true` | ![Inserted images: selectionVertical = false, insertPosNext = true](/src/images/readme/06_images-inserted-ft.png) |
-| `false` | `false` | ![Inserted images: selectionVertical = false, insertPosNext = false](/src/images/readme/07_images-inserted-ff.png) |
+| `true` | `true` | File names are aligned **vertically** on the spreadsheet,<br>and the images should be inserted in the column to the **right** of the file names.<br>![Inserted images: selectionVertical = true, insertPosNext = true](/src/images/readme/04_images-inserted-tt.png) |
+| `true` | `false` | File names are aligned **vertically** on the spreadsheet,<br>and the images should be inserted in the column to the **left** of the file names.<br>![Inserted images: selectionVertical = true, insertPosNext = false](/src/images/readme/05_images-inserted-tf.png) |
+| `false` | `true` | File names are aligned **horizontally** on the spreadsheet,<br>and the images should be inserted in the row **below** the file names.<br>![Inserted images: selectionVertical = false, insertPosNext = true](/src/images/readme/06_images-inserted-ft.png) |
+| `false` | `false` | File names are aligned **horizontally** on the spreadsheet,<br>and the images should be inserted in the row **above** the file names.<br>![Inserted images: selectionVertical = false, insertPosNext = false](/src/images/readme/07_images-inserted-ff.png) |
 
 ## Your Privacy
 This app/script neither collects nor retains any personal information except for the sole purpose of inserting the images designated by the user into the open spreadsheet. The settings, i.e., the Google Drive folder ID and other parameters that can be modified by `Insert Image from Drive` > `Setup`, are save in the [document properties and script properties](https://developers.google.com/apps-script/guides/properties#comparison_of_property_stores) for the add-on and spreadsheet-bound script versions, respectively, and are shared between the users who have either ownership or editor authorization of the file. No log is recorded for individual script executions, and all data pertaining to the user is not visible to the developer.
 
 ### Purpose of Authorization Scopes
-| Scope | Meaning | Usage in this app/script |
-| --- | --- | --- |
-| https://www.googleapis.com/auth/spreadsheets | Allows read/write access to the user's sheets and their properties.<br>See more on https://developers.google.com/sheets/api/guides/authorizing | <ul><li>Read the contents of the selected cells as strings and use them as file names to search for relevant image files in Google Drive.</li><li>Insert images into the spreadsheet.</li></ul> |
-| https://www.googleapis.com/auth/drive.readonly | Allows read-only access to file metadata and file content.<br>See more on https://developers.google.com/drive/api/v2/about-auth | Search for image files by its file name and get the content as [blob](https://developers.google.com/apps-script/reference/base/blob) to insert in spreadsheet|
+| Scope/Meaning | Usage in this app/script |
+| --- | --- |
+| `https://www.googleapis.com/auth/spreadsheets`<br>Allows read/write access to the user's sheets and their properties.<br>See more on https://developers.google.com/sheets/api/guides/authorizing | <ul><li>Read the contents of the selected cells as strings and use them as file names to search for relevant image files in Google Drive.</li><li>Insert images into the spreadsheet.</li></ul> |
+| `https://www.googleapis.com/auth/drive.readonly`<br>Allows read-only access to file metadata and file content.<br>See more on https://developers.google.com/drive/api/v2/about-auth | Search for image files by its file name and get the content as [blob](https://developers.google.com/apps-script/reference/base/blob) to insert in spreadsheet|
 
 ## Attribution
 - The icon of this Google Sheets add-on is made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)
