@@ -32,6 +32,10 @@ function onOpen(e) {
     .addToUi();
 }
 
+function onInstall(e) {
+  onOpen(e);
+}
+
 function insertImage() {
   var documentProperties = PropertiesService.getDocumentProperties().getProperties();
   var localizedMessage = new LocalizedMessage(Session.getActiveUserLocale());

@@ -2,8 +2,13 @@
 .git/*
 .gitignore
 
-# misc
+# clasp
 .clasp.json
+
+# GitHub
 LICENSE
 README.md
 README.ja.md
+
+# Others
+src/images/*
