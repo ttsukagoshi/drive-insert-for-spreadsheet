@@ -115,7 +115,7 @@ function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}
     } else if (!options.selectionVertical && rangeNumRows > 1) {
       throw new Error(localizedMessage.messageList.errorMoreThanOneRowSelected);
     } else if (selectedRange.isBlank()) {
-      throw new Error(localizedMessage.messageList.errorEmptyCellsSelected)
+      throw new Error(localizedMessage.messageList.errorEmptyCellsSelected);
     } else {
       let errorMessage = localizedMessage.replaceErrorUnknownError(selectedRange.getA1Notation(), options.selectionVertical, rangeNumRows, rangeNumColumns);
       throw new Error(errorMessage);

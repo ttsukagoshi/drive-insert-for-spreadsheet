@@ -4,3 +4,4 @@ src/test.js
 
 # misc
 Thumbs.db
+.DS_Store

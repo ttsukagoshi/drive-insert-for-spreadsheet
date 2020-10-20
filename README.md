@@ -1,4 +1,5 @@
 # Insert Image into Google Sheets from a private Google Drive Folder (English / [日本語](https://github.com/ttsukagoshi/spreadsheet-bulk-import-images/blob/main/README.ja.md))
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/ttsukagoshi/spreadsheet-bulk-import-images.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ttsukagoshi/spreadsheet-bulk-import-images/context:javascript)
 ## Background & About this App/Script
 The [built-in `IMAGE(<url>)` function of Google Sheets](https://support.google.com/docs/answer/3093333) is an easy-to-use and highly available function for inserting images into Google Sheets. There is a limitation, however, that the image it can refer to must be publicly accessible. For example, images stored in the user's private Google Drive folder cannot be displayed on the same user's Google Sheets using the function. This can be quite inconvenient when preparing an internal document, containing some sensitive or non-disclosed images and figures, for your team at work.
 
