@@ -1,4 +1,5 @@
 # Googleスプレッドシートに画像挿入 ([English](https://github.com/ttsukagoshi/spreadsheet-bulk-import-images/blob/main/README.md) / 日本語)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/ttsukagoshi/spreadsheet-bulk-import-images.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ttsukagoshi/spreadsheet-bulk-import-images/context:javascript)  
 Googleドライブ内の画像参照。`IMAGE`関数のかゆいところに手を伸ばす。
 ## 背景・このアプリ/スクリプトについて
 Googleスプレッドシートに[内蔵されている`IMAGE(<url>)`関数](https://support.google.com/docs/answer/3093333?hl=ja)は使いやすいですが、「公開されている画像（URL）でないと参照できない」という制約があります。例えば、ユーザのGoogleドライブ内に保存されている非公開の画像は、例えそのユーザ自身がオーナーとなっているスプレッドシートであっても、この関数では画像呼び出し→挿入をできません。非公開の画像・図表を含む社内資料を作成する場合などは、この制約が大きく影響してきます。
