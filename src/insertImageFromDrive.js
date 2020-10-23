@@ -130,8 +130,14 @@ function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}
       while (targetFile.hasNext()) {
         let file = targetFile.next();
         fileCounter += 1;
-        if (fileCounter <= 1) {
+        if (fileCounter <= 1) { // Get the first image file with the designated file name, and ignore all others.
           fileBlob = file.getBlob().setName(value);
+          let imageInfo = ImgAppR.getSize(fileBlob);
+          if (['JPG', 'PNG', 'GIF'].indexOf(imageInfo.identification) < 0) {
+            throw new Error(localizedMessage.replaceErrorImageFileFormat(fileNameExt)); 
+          } else if ((imageInfo.height * imageInfo.width) > 1048576) {
+            throw new Error(localizedMessage.replaceErrorImageFileSizeExceedsLimit(fileNameExt));
+          }
         }
       }
       result[value] = fileCounter;
