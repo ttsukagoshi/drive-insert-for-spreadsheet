@@ -34,6 +34,8 @@ const MESSAGES = {
     'errorMoreThanOneColumnSelected': 'More than one column is selected. Check the selected range.',
     'errorMoreThanOneRowSelected': 'More than one row is selected. Check the selected range.',
     'errorEmptyCellsSelected': 'Empty cells. Check the selected range.',
+    'errorImageFileFormat': 'Check Image File Type: {{fileName}}\nImage file must be either JPG, PNG, or GIF.',
+    'errorImageFileSizeExceedsLimit': 'Image Size Exceeds Pixel Size Limit: {{fileName}}\nThe pixel area, or the product of horizontal and vertical pixel length, of the image must be less than or equal to 2^20 = 1,048,576 pixel^2.\nFor details, see\n https://github.com/ttsukagoshi/spreadsheet-bulk-import-images#note',
     'errorUnknownError': 'Unknown Error:\n\nSelected Range: {{selectedRangeA1Notation}}\noptions.selectionVertical = {{optionsSelectionVertical}}\nrangeNumRows = {{rangeNumRows}}\nrangeNumColumns = {{rangeNumColumns}}',
     'errorExistingContentInInsertCellRange': 'Existing Content in Insert Cell Range: Check the selected range.',
     'alertAlreadySetupMessage': 'Initial settings are already complete. Do you want to overwrite the settings?\n\n',
@@ -43,10 +45,10 @@ const MESSAGES = {
     'promptFileExt': 'File extension of the image file(s) without the period. e.g., NOT ".jpg" but "jpg"',
     'promptSelectionVertical': 'selectionVertical: Enter "true" or "false". When true, the script will assume that the cells are selected vertically, i.e., in a single column.',
     'promptInsertPosNext': 'insertPosNext: Enter "true" or "false". When true, the images will be inserted in the next row or column, depending on the value of selectionVertical.',
-    'alertSetupComplete': 'Complete: setup of script properties',
+    'alertSetupComplete': 'Setup of this add-on properties complete.',
     'alertCurrentSettingsTitle': 'Current Settings'
   },
-  'ja_JP': {
+  'ja': {
     'menuTitle': 'Googleドライブから画像挿入',
     'menuInsertImage': '画像挿入',
     'menuSetup': '初期設定',
@@ -58,6 +60,8 @@ const MESSAGES = {
     'errorMoreThanOneColumnSelected': '複数の列が選択されています。選択範囲をご確認ください。',
     'errorMoreThanOneRowSelected': '複数の行が選択されています。選択範囲をご確認ください。',
     'errorEmptyCellsSelected': '選択範囲が空白です。ご確認ください。',
+    'errorImageFileFormat': '画像ファイルの形式を確認してください。 {{fileName}}\n画像ファイルはJPG、PNG、またはGIFのいずれかの形式である必要があります。',
+    'errorImageFileSizeExceedsLimit': '画像が大きすぎます：{{fileName}}\n縦横のピクセル数の積＝ピクセル面積が2^20 = 1,048,576ピクセル^2以下となるように調整してください。\n詳細は\n https://github.com/ttsukagoshi/spreadsheet-bulk-import-images/blob/main/README.ja.md#%E4%BB%98%E8%A8%98 \nにて確認できます。',
     'errorUnknownError': '不明なエラー：\n\n選択範囲：{{selectedRangeA1Notation}}\noptions.selectionVertical = {{optionsSelectionVertical}}\nrangeNumRows = {{rangeNumRows}}\nrangeNumColumns = {{rangeNumColumns}}',
     'errorExistingContentInInsertCellRange': '処理が中断されました。\n画像を挿入する予定の範囲にデータが存在します。範囲をご確認ください。',
     'alertAlreadySetupMessage': '初期設定はすでに完了しています。既存の設定を上書きしますか？',
@@ -176,6 +180,40 @@ class LocalizedMessage {
       {
         'regexp': '\{\{value\}\}',
         'value': value
+      }
+    ];
+    text = this.replacePlaceholders_(text, placeholderValues);
+    return text;
+  }
+
+  /**
+   * Replace placeholder string in this.messageList.errorImageFileFormat
+   * @param {string} fileName
+   * @returns {string} The replaced text.
+   */
+  replaceErrorImageFileFormat(fileName) {
+    let text = this.messageList.errorImageFileFormat;
+    let placeholderValues = [
+      {
+        'regexp': '\{\{fileName\}\}',
+        'value': fileName
+      }
+    ];
+    text = this.replacePlaceholders_(text, placeholderValues);
+    return text;
+  }
+
+  /**
+   * Replace placeholder string in this.messageList.errorImageFileSizeExceedsLimit
+   * @param {string} fileName
+   * @returns {string} The replaced text.
+   */
+  replaceErrorImageFileSizeExceedsLimit(fileName) {
+    let text = this.messageList.errorImageFileSizeExceedsLimit;
+    let placeholderValues = [
+      {
+        'regexp': '\{\{fileName\}\}',
+        'value': fileName
       }
     ];
     text = this.replacePlaceholders_(text, placeholderValues);

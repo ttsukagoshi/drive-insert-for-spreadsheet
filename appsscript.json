@@ -1,0 +1,17 @@
+{
+  "timeZone": "Asia/Tokyo",
+  "dependencies": {
+    "libraries": [{
+      "userSymbol": "ImgAppR",
+      "libraryId": "1PZwZxlM1yuk9nRFTxyKsz2vviIW9dWq4bdy6CndFM0VFEsbyfZOoqrTL",
+      "version": "2",
+      "developmentMode": true
+    }]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/spreadsheets"
+  ]
+}

@@ -21,38 +21,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Boolean indicating the mode of this script; `true` for Editor Add-on, `false` when used as a spreadsheet-bound script.
+const IS_EDITOR_ADDON = true;
+
 function onOpen() {
-  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
-  SpreadsheetApp.getUi()
-    .createMenu(localizedMessage.messageList.menuTitle)
-    .addItem(localizedMessage.messageList.menuInsertImage, 'insertImage')
-    .addSeparator()
-    .addItem(localizedMessage.messageList.menuSetup, 'setParameters')
-    .addItem(localizedMessage.messageList.menuCheckSettings, 'checkParameters')
-    .addToUi();
+  var locale = (IS_EDITOR_ADDON ? Session.getActiveUserLocale() : SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var localizedMessage = new LocalizedMessage(locale);
+  var ui = SpreadsheetApp.getUi();
+  if (IS_EDITOR_ADDON) {
+    ui.createAddonMenu()
+      .addItem(localizedMessage.messageList.menuInsertImage, 'insertImage')
+      .addSeparator()
+      .addItem(localizedMessage.messageList.menuSetup, 'setParameters')
+      .addItem(localizedMessage.messageList.menuCheckSettings, 'checkParameters')
+      .addToUi();
+  } else {
+    ui.createMenu(localizedMessage.messageList.menuTitle)
+      .addItem(localizedMessage.messageList.menuInsertImage, 'insertImage')
+      .addSeparator()
+      .addItem(localizedMessage.messageList.menuSetup, 'setParameters')
+      .addItem(localizedMessage.messageList.menuCheckSettings, 'checkParameters')
+      .addToUi();
+  }
+}
+
+function onInstall() {
+  onOpen();
 }
 
 function insertImage() {
-  var scriptProperties = PropertiesService.getScriptProperties().getProperties();
-  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var locale = (IS_EDITOR_ADDON ? Session.getActiveUserLocale() : SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var documentProperties = PropertiesService.getDocumentProperties().getProperties();
+  var localizedMessage = new LocalizedMessage(locale);
   var ui = SpreadsheetApp.getUi();
   try {
     let isSettingComplete = (
-      scriptProperties.folderId
-      && scriptProperties.fileExt
-      && scriptProperties.selectionVertical
-      && scriptProperties.insertPosNext
+      documentProperties.folderId
+      && documentProperties.fileExt
+      && documentProperties.selectionVertical
+      && documentProperties.insertPosNext
     );
     if (!isSettingComplete) {
       throw new Error(localizedMessage.messageList.errorInitialSettingNotComplete);
     }
-    let folderId = scriptProperties.folderId;
+    let folderId = documentProperties.folderId;
     let activeSheet = SpreadsheetApp.getActiveSheet();
     let selectedRange = SpreadsheetApp.getActiveRange();
     let options = {
-      fileExt: scriptProperties.fileExt,
-      selectionVertical: toBoolean_(scriptProperties.selectionVertical),
-      insertPosNext: toBoolean_(scriptProperties.insertPosNext)
+      fileExt: documentProperties.fileExt,
+      selectionVertical: toBoolean_(documentProperties.selectionVertical),
+      insertPosNext: toBoolean_(documentProperties.insertPosNext)
     };
     let result = insertImageFromDrive(folderId, activeSheet, selectedRange, options);
     let message = localizedMessage.replaceAlertMessageOnComplete(result.getBlobsCompleteSec, result.insertImageCompleteSec);
@@ -97,7 +115,8 @@ function toBoolean_(stringBoolean) {
  */
 function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}) {
   var start = new Date();
-  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var locale = (IS_EDITOR_ADDON ? Session.getActiveUserLocale() : SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var localizedMessage = new LocalizedMessage(locale);
   var result = {};
   try {
     // Check the selected range and get file names
@@ -111,7 +130,7 @@ function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}
     } else if (!options.selectionVertical && rangeNumRows > 1) {
       throw new Error(localizedMessage.messageList.errorMoreThanOneRowSelected);
     } else if (selectedRange.isBlank()) {
-      throw new Error(localizedMessage.messageList.errorEmptyCellsSelected)
+      throw new Error(localizedMessage.messageList.errorEmptyCellsSelected);
     } else {
       let errorMessage = localizedMessage.replaceErrorUnknownError(selectedRange.getA1Notation(), options.selectionVertical, rangeNumRows, rangeNumColumns);
       throw new Error(errorMessage);
@@ -126,8 +145,14 @@ function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}
       while (targetFile.hasNext()) {
         let file = targetFile.next();
         fileCounter += 1;
-        if (fileCounter <= 1) {
+        if (fileCounter <= 1) { // Get the first image file with the designated file name, and ignore all others.
           fileBlob = file.getBlob().setName(value);
+          let imageInfo = ImgAppR.getSize(fileBlob);
+          if (['JPG', 'PNG', 'GIF'].indexOf(imageInfo.identification) < 0) {
+            throw new Error(localizedMessage.replaceErrorImageFileFormat(fileNameExt));
+          } else if ((imageInfo.height * imageInfo.width) > 1048576) {
+            throw new Error(localizedMessage.replaceErrorImageFileSizeExceedsLimit(fileNameExt));
+          }
         }
       }
       result[value] = fileCounter;
@@ -196,18 +221,19 @@ function cellPixSizes_(activeSheet, activeRange) {
  */
 function setParameters() {
   var ui = SpreadsheetApp.getUi();
-  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
-  var scriptProperties = PropertiesService.getScriptProperties().getProperties();
-  if (!scriptProperties.setupComplete || scriptProperties.setupComplete == 'false') {
+  var locale = (IS_EDITOR_ADDON ? Session.getActiveUserLocale() : SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var localizedMessage = new LocalizedMessage(locale);
+  var documentProperties = PropertiesService.getDocumentProperties().getProperties();
+  if (!documentProperties.setupComplete || documentProperties.setupComplete == 'false') {
     setup_(ui);
   } else {
     let alreadySetupMessage = localizedMessage.messageList.alertAlreadySetupMessage;
-    for (let k in scriptProperties) {
-      alreadySetupMessage += `${k}: ${scriptProperties[k]}\n`;
+    for (let k in documentProperties) {
+      alreadySetupMessage += `${k}: ${documentProperties[k]}\n`;
     }
     let response = ui.alert(alreadySetupMessage, ui.ButtonSet.YES_NO);
     if (response == ui.Button.YES) {
-      setup_(ui, scriptProperties);
+      setup_(ui, documentProperties);
     }
   }
 }
@@ -218,7 +244,8 @@ function setParameters() {
  * @param {Object} currentSettings [Optional] Current script properties
  */
 function setup_(ui, currentSettings = {}) {
-  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var locale = (IS_EDITOR_ADDON ? Session.getActiveUserLocale() : SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var localizedMessage = new LocalizedMessage(locale);
   try {
     // folderId
     let promptFolderId = localizedMessage.messageList.promptFolderId;
@@ -264,7 +291,7 @@ function setup_(ui, currentSettings = {}) {
       'insertPosNext': insertPosNext,
       'setupComplete': true
     };
-    PropertiesService.getScriptProperties().setProperties(properties, false);
+    PropertiesService.getDocumentProperties().setProperties(properties, false);
     ui.alert(localizedMessage.messageList.alertSetupComplete);
   } catch (error) {
     let message = errorMessage_(error);
@@ -277,11 +304,12 @@ function setup_(ui, currentSettings = {}) {
  */
 function checkParameters() {
   var ui = SpreadsheetApp.getUi();
-  var localizedMessage = new LocalizedMessage(SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
-  var scriptProperties = PropertiesService.getScriptProperties().getProperties();
+  var locale = (IS_EDITOR_ADDON ? Session.getActiveUserLocale() : SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
+  var localizedMessage = new LocalizedMessage(locale);
+  var documentProperties = PropertiesService.getDocumentProperties().getProperties();
   var currentSettings = '';
-  for (let k in scriptProperties) {
-    currentSettings += `${k}: ${scriptProperties[k]}\n`;
+  for (let k in documentProperties) {
+    currentSettings += `${k}: ${documentProperties[k]}\n`;
   }
   ui.alert(localizedMessage.messageList.alertCurrentSettingsTitle, currentSettings, ui.ButtonSet.OK);
 }
