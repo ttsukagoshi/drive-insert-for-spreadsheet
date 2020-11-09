@@ -22,7 +22,7 @@
 // SOFTWARE.
 
 // Boolean indicating the mode of this script; `true` for Editor Add-on, `false` when used as a spreadsheet-bound script.
-const IS_EDITOR_ADDON = true;
+const IS_EDITOR_ADDON = false;
 
 function onOpen() {
   var locale = (IS_EDITOR_ADDON ? Session.getActiveUserLocale() : SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
