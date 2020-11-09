@@ -9,7 +9,7 @@ Googleスプレッドシートに[内蔵されている`IMAGE(<url>)`関数](htt
 [`main`ブランチにおける`src`フォルダ内のソースコード一式](https://github.com/ttsukagoshi/spreadsheet-bulk-import-images/tree/main/src)はこのアプリ版のものです。  
 2. アプリ版の代替として、スプレッドシートにバインドされたスクリプトとして本機能を利用いただくこともできます。  
 詳細の使い方は[サンプルファイル](https://docs.google.com/spreadsheets/d/1Ck2GgMwbTUZeag5HWeG05ZS_j7IN935nqXfcunPZgC4/edit#gid=1434843200)に記載しました。  
-`ファイル` > `コピーを作成`からご自身のファイルを作成すれば、すぐに使えるようになります。そのソースコードは[v0.5.0](https://github.com/ttsukagoshi/spreadsheet-bulk-import-images/releases/tag/v0.5.0)版と同等であり、機能としては遜色ありません。
+`ファイル` > `コピーを作成`からご自身のファイルを作成すれば、すぐに使えるようになります。そのソースコードは[`main-script-bound`ブランチ](ttps://github.com/ttsukagoshi/spreadsheet-bulk-import-images/tree/main-script-bound)と同等であり、機能としてはアプリ版と遜色ありません。
 
 ### 付記
 - 上記2. にあるサンプルスプレッドシートの言語は`en_US`つまり`英語（アメリカ合衆国）`に設定されています。画像挿入のメニュー名などを日本語に切り替えるには`ファイル` > `Googleスプレッドシートの設定`から`言語と地域`の設定を`日本`に変更してください。  
