@@ -7,7 +7,7 @@ This app (or the script) is a work-around for this limitation, enabling the user
 1. The app version is currently available as an Editor Add-on in the Google Workspace (G Suite) Marketplace, limited to members of a specific organization.  
 The [`src` folder of the `main` branch](https://github.com/ttsukagoshi/spreadsheet-bulk-import-images/tree/main/src) describes the scripts for this app version.
 2. Alternatively, you can use this feature as a spreadsheet-bound script.  
-The details on how to use the script is described on [this sample Google Sheets](https://docs.google.com/spreadsheets/d/1Ck2GgMwbTUZeag5HWeG05ZS_j7IN935nqXfcunPZgC4/edit#gid=0). Create your file by copying the sample file from `File` > `Copy`, and you can start using the functions immediately. The source code is identical to [v0.5.0](https://github.com/ttsukagoshi/spreadsheet-bulk-import-images/releases/tag/v0.5.0)
+The details on how to use the script is described on [this sample Google Sheets](https://docs.google.com/spreadsheets/d/1Ck2GgMwbTUZeag5HWeG05ZS_j7IN935nqXfcunPZgC4/edit#gid=0). Create your file by copying the sample file from `File` > `Copy`, and you can start using the functions immediately. The source code is identical to that of the [branch `main-script-bound`](https://github.com/ttsukagoshi/spreadsheet-bulk-import-images/tree/main-script-bound)
 
 ### Note
 - The language of the sample Google Sheets file is set to `en_US`, i.e., English (USA). Change the language setting of your copied file from `File` > `Spreadsheet settings`.  
