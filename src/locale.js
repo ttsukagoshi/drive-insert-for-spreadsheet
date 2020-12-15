@@ -14,6 +14,8 @@
 // 
 // For latest information, see https://github.com/ttsukagoshi/drive-insert-for-spreadsheet
 
+/* exported LocalizedMessage */
+
 const MESSAGES = {
   'en_US': {
     'menuTitle': 'Insert Image from Drive',
