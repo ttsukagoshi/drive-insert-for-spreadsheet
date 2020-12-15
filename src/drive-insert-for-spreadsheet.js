@@ -14,6 +14,9 @@
 // 
 // For latest information, see https://github.com/ttsukagoshi/drive-insert-for-spreadsheet
 
+/* global ImgAppR, LocalizedMessage */
+/* exported checkParameters, insertImage, onInstall, setParameters */
+
 // Boolean indicating the mode of this script; `true` for Editor Add-on, `false` when used as a spreadsheet-bound script.
 const IS_EDITOR_ADDON = true;
 
