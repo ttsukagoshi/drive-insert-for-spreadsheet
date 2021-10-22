@@ -1,14 +1,3 @@
-# git
-.git/*
-.gitignore
-
-# clasp
-.clasp.json
-
-# GitHub
-LICENSE
-README.md
-README.ja.md
-
-# Others
-src/images/*
+**/**
+!*.js
+!appsscript.json

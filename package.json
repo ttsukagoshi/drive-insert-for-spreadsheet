@@ -1,0 +1,35 @@
+{
+  "name": "drive-insert-for-spreadsheet",
+  "version": "1.2.2",
+  "description": "Bulk import images to designated cells in Google Spreadsheet using Google Apps Script",
+  "main": "drive-insert-for-spreadsheet.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ttsukagoshi/drive-insert-for-spreadsheet.git"
+  },
+  "keywords": [
+    "google-spreadsheet",
+    "google-drive",
+    "google-apps-script"
+  ],
+  "author": "ttsukagoshi",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ttsukagoshi/drive-insert-for-spreadsheet/issues"
+  },
+  "homepage": "https://github.com/ttsukagoshi/drive-insert-for-spreadsheet#readme",
+  "devDependencies": {
+    "@google/clasp": "^2.4.1",
+    "@types/google-apps-script": "^1.0.37",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1",
+    "typescript": "^4.4.4"
+  }
+}
