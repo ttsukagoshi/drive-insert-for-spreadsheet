@@ -2,6 +2,9 @@
 .clasp.json
 src/test.js
 
+# node
+node_modules/
+
 # misc
 Thumbs.db
 .DS_Store
