@@ -1,25 +1,21 @@
-// MIT License
+// Copyright 2020 Taro TSUKAGOSHI
 // 
-// Copyright (c) 2020 Taro TSUKAGOSHI
-// https://github.com/ttsukagoshi/spreadsheet-bulk-import-images
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 // 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+//     http://www.apache.org/licenses/LICENSE-2.0
 // 
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+// For latest information, see https://github.com/ttsukagoshi/drive-insert-for-spreadsheet
+
+/* global ImgAppR, LocalizedMessage */
+/* exported checkParameters, insertImage, onInstall, setParameters */
 
 // Boolean indicating the mode of this script; `true` for Editor Add-on, `false` when used as a spreadsheet-bound script.
 const IS_EDITOR_ADDON = true;
@@ -118,80 +114,76 @@ function insertImageFromDrive(folderId, activeSheet, selectedRange, options = {}
   var locale = (IS_EDITOR_ADDON ? Session.getActiveUserLocale() : SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetLocale());
   var localizedMessage = new LocalizedMessage(locale);
   var result = {};
-  try {
-    // Check the selected range and get file names
-    let rangeNumRows = selectedRange.getNumRows();
-    let rangeNumColumns = selectedRange.getNumColumns();
-    let fileNames = [];
-    if ((options.selectionVertical && rangeNumColumns == 1) || (!options.selectionVertical && rangeNumRows == 1)) {
-      fileNames = fileNames.concat(selectedRange.getValues().flat());
-    } else if (options.selectionVertical && rangeNumColumns > 1) {
-      throw new Error(localizedMessage.messageList.errorMoreThanOneColumnSelected);
-    } else if (!options.selectionVertical && rangeNumRows > 1) {
-      throw new Error(localizedMessage.messageList.errorMoreThanOneRowSelected);
-    } else if (selectedRange.isBlank()) {
-      throw new Error(localizedMessage.messageList.errorEmptyCellsSelected);
-    } else {
-      let errorMessage = localizedMessage.replaceErrorUnknownError(selectedRange.getA1Notation(), options.selectionVertical, rangeNumRows, rangeNumColumns);
-      throw new Error(errorMessage);
-    }
-    // Get images as blobs
-    let targetFolder = (folderId == 'root' ? DriveApp.getRootFolder() : DriveApp.getFolderById(folderId));
-    let imageBlobs = fileNames.map((value) => {
-      let fileNameExt = `${value}.${options.fileExt}`;
-      let targetFile = targetFolder.getFilesByName(fileNameExt);
-      let fileCounter = 0;
-      let fileBlob = null;
-      while (targetFile.hasNext()) {
-        let file = targetFile.next();
-        fileCounter += 1;
-        if (fileCounter <= 1) { // Get the first image file with the designated file name, and ignore all others.
-          fileBlob = file.getBlob().setName(value);
-          let imageInfo = ImgAppR.getSize(fileBlob);
-          if (['JPG', 'PNG', 'GIF'].indexOf(imageInfo.identification) < 0) {
-            throw new Error(localizedMessage.replaceErrorImageFileFormat(fileNameExt));
-          } else if ((imageInfo.height * imageInfo.width) > 1048576) {
-            throw new Error(localizedMessage.replaceErrorImageFileSizeExceedsLimit(fileNameExt));
-          }
+  // Check the selected range and get file names
+  var rangeNumRows = selectedRange.getNumRows();
+  var rangeNumColumns = selectedRange.getNumColumns();
+  var fileNames = [];
+  if ((options.selectionVertical && rangeNumColumns == 1) || (!options.selectionVertical && rangeNumRows == 1)) {
+    fileNames = fileNames.concat(selectedRange.getValues().flat());
+  } else if (options.selectionVertical && rangeNumColumns > 1) {
+    throw new Error(localizedMessage.messageList.errorMoreThanOneColumnSelected);
+  } else if (!options.selectionVertical && rangeNumRows > 1) {
+    throw new Error(localizedMessage.messageList.errorMoreThanOneRowSelected);
+  } else if (selectedRange.isBlank()) {
+    throw new Error(localizedMessage.messageList.errorEmptyCellsSelected);
+  } else {
+    let errorMessage = localizedMessage.replaceErrorUnknownError(selectedRange.getA1Notation(), options.selectionVertical, rangeNumRows, rangeNumColumns);
+    throw new Error(errorMessage);
+  }
+  // Get images as blobs
+  var targetFolder = (folderId == 'root' ? DriveApp.getRootFolder() : DriveApp.getFolderById(folderId));
+  var imageBlobs = fileNames.map((value) => {
+    let fileNameExt = `${value}.${options.fileExt}`;
+    let targetFile = targetFolder.getFilesByName(fileNameExt);
+    let fileCounter = 0;
+    let fileBlob = null;
+    while (targetFile.hasNext()) {
+      let file = targetFile.next();
+      fileCounter += 1;
+      if (fileCounter <= 1) { // Get the first image file with the designated file name, and ignore all others.
+        fileBlob = file.getBlob().setName(value);
+        let imageInfo = ImgAppR.getSize(fileBlob);
+        if (['JPG', 'PNG', 'GIF'].indexOf(imageInfo.identification) < 0) {
+          throw new Error(localizedMessage.replaceErrorImageFileFormat(fileNameExt));
+        } else if ((imageInfo.height * imageInfo.width) > 1048576) {
+          throw new Error(localizedMessage.replaceErrorImageFileSizeExceedsLimit(fileNameExt));
         }
       }
-      result[value] = fileCounter;
-      return fileBlob;
-    });
-    let getBlobsComplete = new Date();
-    result['getBlobsCompleteSec'] = (getBlobsComplete.getTime() - start.getTime()) / 1000;
-    // Set the offset row and column to insert image blobs
-    let offsetPos = (options.insertPosNext ? 1 : -1);
-    let offsetPosRow = (options.selectionVertical ? 0 : offsetPos);
-    let offsetPosCol = (options.selectionVertical ? offsetPos : 0);
-    // Define the range to insert image
-    let insertRange = selectedRange.offset(offsetPosRow, offsetPosCol);
-    // Verify the contents of the insertRange, i.e., make sure the cells in the range are empty
-    if (!insertRange.isBlank()) {
-      throw new Error(localizedMessage.messageList.errorExistingContentInInsertCellRange);
     }
-    // Insert the image blobs
-    let startCell = { 'row': insertRange.getRow(), 'column': insertRange.getColumn() };
-    let cellPxSizes = cellPixSizes_(activeSheet, insertRange).flat();
-    imageBlobs.forEach(function (blob, index) {
-      let img = (
-        options.selectionVertical
-          ? activeSheet.insertImage(blob, startCell.column, startCell.row + index)
-          : activeSheet.insertImage(blob, startCell.column + index, startCell.row)
-      );
-      let [imgHeight, imgWidth] = [img.getHeight(), img.getWidth()];
-      let { height, width } = cellPxSizes[index];
-      let fraction = Math.min(height / imgHeight, width / imgWidth);
-      let [imgHeightResized, imgWidthResized] = [imgHeight * fraction, imgWidth * fraction];
-      let offsetX = Math.trunc((width - imgWidthResized) / 2);
-      img.setHeight(imgHeightResized).setWidth(imgWidthResized).setAnchorCellXOffset(offsetX);
-    });
-    let insertImageComplete = new Date();
-    result['insertImageCompleteSec'] = (insertImageComplete.getTime() - start.getTime()) / 1000;
-    return result;
-  } catch (error) {
-    throw error;
+    result[value] = fileCounter;
+    return fileBlob;
+  });
+  var getBlobsComplete = new Date();
+  result['getBlobsCompleteSec'] = (getBlobsComplete.getTime() - start.getTime()) / 1000;
+  // Set the offset row and column to insert image blobs
+  var offsetPos = (options.insertPosNext ? 1 : -1);
+  var offsetPosRow = (options.selectionVertical ? 0 : offsetPos);
+  var offsetPosCol = (options.selectionVertical ? offsetPos : 0);
+  // Define the range to insert image
+  var insertRange = selectedRange.offset(offsetPosRow, offsetPosCol);
+  // Verify the contents of the insertRange, i.e., make sure the cells in the range are empty
+  if (!insertRange.isBlank()) {
+    throw new Error(localizedMessage.messageList.errorExistingContentInInsertCellRange);
   }
+  // Insert the image blobs
+  var startCell = { 'row': insertRange.getRow(), 'column': insertRange.getColumn() };
+  var cellPxSizes = cellPixSizes_(activeSheet, insertRange).flat();
+  imageBlobs.forEach(function (blob, index) {
+    let img = (
+      options.selectionVertical
+        ? activeSheet.insertImage(blob, startCell.column, startCell.row + index)
+        : activeSheet.insertImage(blob, startCell.column + index, startCell.row)
+    );
+    let [imgHeight, imgWidth] = [img.getHeight(), img.getWidth()];
+    let { height, width } = cellPxSizes[index];
+    let fraction = Math.min(height / imgHeight, width / imgWidth);
+    let [imgHeightResized, imgWidthResized] = [imgHeight * fraction, imgWidth * fraction];
+    let offsetX = Math.trunc((width - imgWidthResized) / 2);
+    img.setHeight(imgHeightResized).setWidth(imgWidthResized).setAnchorCellXOffset(offsetX);
+  });
+  var insertImageComplete = new Date();
+  result['insertImageCompleteSec'] = (insertImageComplete.getTime() - start.getTime()) / 1000;
+  return result;
 }
 
 /**
