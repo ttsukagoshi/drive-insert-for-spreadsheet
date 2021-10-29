@@ -1,8 +1,8 @@
 {
-  "name": "drive-insert-for-spreadsheet",
-  "version": "1.2.2",
+  "name": "image-plus",
+  "version": "2.0.0",
   "description": "Bulk import images to designated cells in Google Spreadsheet using Google Apps Script",
-  "main": "drive-insert-for-spreadsheet.js",
+  "main": "image-plus.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
