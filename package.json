@@ -23,7 +23,7 @@
   "homepage": "https://github.com/ttsukagoshi/drive-insert-for-spreadsheet#readme",
   "devDependencies": {
     "@google/clasp": "^2.4.2",
-    "@types/google-apps-script": "^1.0.66",
+    "@types/google-apps-script": "^1.0.76",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.47.0",
